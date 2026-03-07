@@ -1,9 +1,6 @@
 Transport Layer
 ===============
 
-Internet transport protocols
-=============================
-
 TCP - Transport Control Protocol
 ---------------------------------
 

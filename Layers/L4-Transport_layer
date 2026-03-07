@@ -55,6 +55,9 @@ When speed is more important than reliable data, the applications can tolerate s
 
 Speed is highly valued in the real applications, which makes UDP much better than TCP. Low latency is prefered over useless data. Think video and audio calls. Resending a datagram might not be as relevant when something can be shown or said again in a case of bad conn.
 
+* Can detect and drop flipped bits, cannot report
+* uses checksum
+
 Example calculations with TCP:
 ------------------------------
 

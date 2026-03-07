@@ -1,0 +1,140 @@
+The network layer is all about routing and forwarding.
+
+* Forwarding
+    - a router receives a packet and decides where to send it forward according to its forwarding table
+* Forwarding table
+    - comprised of subnets that the router is connected to
+    - ALWAYS longest prefix matching first (largest net mask)
+
+* Routing
+    - determine the route for a packet from source to destination
+    - source IP to destination IP
+    - next-hop
+
+* IP fragmentation
+    - Networks have MTU (max transmission unit)
+    - different MTU for different link types
+    - a large datagram must be fragmented and sent in pieces if it exceeds MTU
+* IP reassembly
+    - once at its final destination will it be reassembled
+    - header bits are use to ID fragments to help putting them back in order
+
+IP - Internet Protocol
+-----------------------
+
+### IPv4 biased info + IP behavior:
+
+* 32 bits in length, divided into 4 octets
+* subnet part
+    - high-order bits
+    - |xxx.xx.xx|.yy
+* host part
+    - low order bits
+    - xxx.xx.xx.|yy|
+
+* subnet
+    - an isolated network
+    - LAN/WLAN for example
+* network mask
+    - defines the length of the subnet bits (high order bits) in the IP addr
+    - the lower the amount of subnet bits, the larger the range/amount of host IP addrs
+* IP addr given to the end-user by DHCP
+    - but more as well
+    - first-hop router
+    - name and IP addr of local DNS server
+    - network mask
+
+### IPv6 info:
+* 128-bit addr, 8 groups of 16 bits
+    - colon ':' between each group
+* additional information
+    - priority
+    - flow label
+* no fragmentation allowed
+* NAT no longer required
+* Dedicated ICMP version ICMPv6
+    - additional message types
+    - multicast group management functions
+
+
+NAT - Network Address Translation
+----------------------------------
+
+To save on the limited amount of unique IPv4 addrs, when a host wants to send info to the internet it does not use it's own IP addr. Instead the source addr is change to the router's public IP addr, and a new port is used.
+
+* minimal addr usage
+    - one per local network
+* can change addrs of devices in local network without notifying the public network
+* can change ISP without changing addrs of devices in local network
+* devices inside local network not directly addressable by devices from other networks, have to go through the router
+
+* NAT steps
+    1. _replace_ (source IP, port num) of outgoing datagram with (NAT IP, new port num)
+    2. _remember_ every (source IP, port num) to (NAT IP, new port num) transl. pair in NAT translation table
+    2. _replace_ (NAT IP, new port num) in destination fields of incoming datagrams with corresponding (source IP, port num) stored in NAT table
+
+ICMP - Internet Control Message Protocol
+-----------------------------------------
+
+* used by hosts and routers to comm network info
+    - error reports (packet delivery)
+    - echo req/resp
+    - does _not_ carry application data
+    - directly encapsulated insde IP
+    - does not use TCP or UDP
+
+RIP - Routing information protocol
+-----------------------------------
+
+* Uses the distance vector algorithm
+    - each router learns routes from its neighbours and gradually builds a routing table
+    - The table contains:
+        1. Destination (final destination for the packet)
+        2. Cost (the distance to reach the destination through a specific route, counted in hops)
+        3. Next hop (neighbour to send packet to, is the first step in the "route" I mentioned in the cost)
+    - routers send their table to neighbours every 30 secs
+    - each router knows the cost to it's neighbours
+    - when a router receives a neighbour's table it asks: "Can I reach a destination faster through this neighbour?"
+        - If yes, it updates its table
+    - continues until all routers _converge_ aka agree on the best paths
+* a neighbour is declared dead after 180 secs of not receiving its routing table
+    - taken off the router's table as a valid route
+    - new advertisements sent to neighbours
+
+* most useful for smaller scale networks considering the max hop amount is 15
+    - local networks for office buildings
+
+OSPF - Open Shortest Path First
+--------------------------------
+
+* publicly available (hence 'open')
+* uses Dijkstra's algo
+    - topology and costs known to all nodes (link state broadcast)
+    - computes least cost paths from one source node to all other nodes
+* messages carried directly over IP
+    - messages are authenticated to prevent intrusion
+* multiple same-cost paths allowed, not in RIP
+* multiple cost metrics for path; quality, speed, validity
+
+* Hierarchical OSPF
+    - divides a network into multiple areas which all know their local costs. Like a tree, there's root/boundary router which connects to lower routers in the tree, which ultimately branch out to different areas of local networks
+
+* IS-IS is basically the same thing
+
+* best used for medium sized networks
+    - multiple office buildings for one company
+
+
+BGP - Border Gateway Protocol
+--------------------------
+
+"The glue that holds the internet together", protocol to manage inter-network comms; the internet!!!
+
+* allows other networks to obtain subnet reachability info from other networks
+    - eBGP
+* propogates reachability info to all internal routers inside a network
+    - iBGP
+* determines "good" routes to ther networks based on reachability AND policy between companies/networks
+
+* allows information to be sent _through_ other networks
+    - AS1 is allowed to send data through AS2 to get to AS3
